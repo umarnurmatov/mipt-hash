@@ -35,7 +35,7 @@ endif
 
 CXXFLAGS_WARNINGS := -Wall -Wextra -Waggressive-loop-optimizations -Wmissing-declarations -Wcast-align -Wcast-qual -Wchar-subscripts -Wconversion -Wempty-body -Wfloat-equal -Wformat-nonliteral -Wformat-security -Wformat-signedness -Wformat=2 -Winline -Wlogical-op -Wopenmp-simd -Wpacked -Wpointer-arith -Winit-self -Wredundant-decls -Wshadow -Wsign-conversion -Wstrict-overflow=2 -Wsuggest-attribute=noreturn -Wsuggest-final-methods -Wsuggest-final-types -Wswitch-default -Wswitch-enum -Wsync-nand -Wundef -Wunreachable-code -Wunused -Wuseless-cast -Wvariadic-macros -Wno-missing-field-initializers -Wno-narrowing -Wno-varargs -Wstack-protector -Wlarger-than=8192 -Werror=vla -Wstack-usage=8192 
 
-CXXFLAGS_DEFINES = $(addprefix -D,$(DEFINE)) -DLOG_DIR='"log"' -DIMG_DIR='"img"'
+CXXFLAGS_DEFINES = $(addprefix -D,$(DEFINE)) -DLOG_DIR='"log"' -DIMG_DIR='"img"' -D_GNU_SOURCE
 
 CXXFLAGS := -std=c11 $(addprefix -I,$(INCLUDE_DIRS_ALL)) $(CXXFLAGS_WARNINGS) $(CXXFLAGS_DEFINES) $(CXXFLAGS_TARGET) 
 

@@ -1,7 +1,5 @@
 #include "dllist.h"
 
-#define POSIX_
-
 #include <assert.h>
 #include <time.h>
 #include <memory.h>
@@ -14,12 +12,6 @@
 #include "logutils.h"
 
 #ifdef _DEBUG
-
-#define DLLIST_DUMP_(dllist, err) \
-    dllist_dump_(dllist, err, NULL, __FILE__, __LINE__, __func__); 
-
-#define DLLIST_DUMP_MSG_(dllist, err, msg) \
-    dllist_dump_(dllist, err, msg, __FILE__, __LINE__, __func__); 
 
 #define DLLIST_ASSERT_OK_(dllist)                    \
     {                                                \
@@ -37,10 +29,6 @@
     }
 
 #else // _DEBUG
-
-#define DLLIST_DUMP_(dllist, err) 
-
-#define DLLIST_DUMP_MSG_(dllist, err) 
 
 #define DLLIST_VERIFY_OR_RETURN_(dllist, err)  \
     if(err != DLLIST_NONE) {                   \
@@ -68,8 +56,6 @@ static dllist_err_t dllist_verify_(dllist_t* dllist);
 
 char* dllist_dump_graphviz_(dllist_t* dllist);
 
-void dllist_dump_(dllist_t* dllist, dllist_err_t err, char* msg, const char* filename, int line, const char* funcname);
-
 static const char* dllist_strerr_(dllist_err_t err);
 
 #endif // _DEBUG
@@ -79,11 +65,6 @@ dllist_err_t dllist_ctor(dllist_t* dllist, ssize_t init_cpcty, const char* log_f
 {
     utils_assert(dllist);
     utils_assert(init_cpcty > 0);
-
-    IF_DEBUG(
-        utils_assert(log_filename);
-        utils_init_log_file(log_filename, LOG_DIR);
-    )
 
     dllist_err_t err = DLLIST_NONE;
 
@@ -116,10 +97,6 @@ void dllist_dtor(dllist_t* dllist)
     
     dllist->size = 0;
     dllist->free = 0;
-
-    IF_DEBUG(
-        utils_end_log();
-    )
 }
 
 static dllist_err_t dllist_realloc_arr_(void** ptr, ssize_t nmemb, size_t tsize)
@@ -380,7 +357,7 @@ ssize_t dllist_end(dllist_t* dllist)
 #define CLR_GREEN_BOLD_  "\"#03c03c\""
 #define CLR_BLUE_BOLD_   "\"#0000FF\""
 
-void dllist_dump_(dllist_t* dllist, dllist_err_t err, char* msg, const char* filename, int line, const char* funcname)
+void dllist_dump(dllist_t* dllist, dllist_err_t err, char* msg, const char* filename, int line, const char* funcname)
 {
     utils_log_fprintf(
         "<style>"

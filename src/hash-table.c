@@ -2,59 +2,69 @@
 
 #include <string.h>
 
+#include "assertutils.h"
 #include "dllist.h"
+#include "logutils.h"
 
-static const ssize_t kListInitCapacity = 1;
-static const char* kLogFilaname = "log.txt";
+static const ssize_t kListInitCapacity = 5;
+static const char*   kLogFilaname      = "log.html";
 
-typedef uint32_t hash_t;
-
-hash_t _hash_ascii_sum(char* str, size_t len);
-
-err_t hash_table_ctor(HashTable* hash_tbl, size_t size)
+err_t hash_table_ctor(HashTable* hash_tbl, uint32_t size) 
 {
+  IF_DEBUG(
+      utils_assert(kLogFilaname);
+      utils_init_log_file(kLogFilaname, LOG_DIR);
+  )
+
   hash_tbl->tbl = (dllist_t*)calloc(size, sizeof(dllist_t));
 
-  if(!hash_tbl->tbl)
-    return DLLIST_ALLOC_FAIL;
+  if (!hash_tbl->tbl) return DLLIST_ALLOC_FAIL;
 
-  for(size_t i = 0; i < size; ++i) {
+  for (size_t i = 0; i < size; ++i) {
     dllist_ctor(&hash_tbl->tbl[i], kListInitCapacity, kLogFilaname);
   }
 
+  hash_tbl->size = size;
+
   return DLLIST_NONE;
 }
 
-err_t hash_table_add(HashTable* hash_tbl, char* str)
+err_t hash_table_add(HashTable* hash_tbl, char* str) 
 {
   size_t str_len = strlen(str);
-  
-  hash_t hash = _hash_ascii_sum(str, str_len);
-  
-  dllist_t* lst = &hash_tbl->tbl[hash % hash_tbl->size];
-  ssize_t lst_size = lst->size;
 
-  err_t err = dllist_insert_after(lst, str, lst_size-1);
-  if(err != DLLIST_NONE)
-    return err;
+  hash_t hash = hash_ascii_sum(str, str_len);
+
+  dllist_t* lst      = &hash_tbl->tbl[hash % hash_tbl->size];
+  ssize_t   lst_size = lst->size;
+
+  err_t err = dllist_insert_after(lst, str, lst_size);
+  if (err != DLLIST_NONE) return err;
 
   return DLLIST_NONE;
 }
 
-void hash_table_dtor(HashTable* hash_tbl)
+void hash_table_dtor(HashTable* hash_tbl) 
 {
-  for(size_t i = 0; i < hash_tbl->size; ++i)
+  for (size_t i = 0; i < hash_tbl->size; ++i) 
     dllist_dtor(&hash_tbl->tbl[i]);
 
   free(hash_tbl->tbl);
+
+  IF_DEBUG(
+    utils_end_log();
+  )
 }
 
-hash_t _hash_ascii_sum(char* str, size_t len)
+#ifdef _DEBUG
+
+void hash_table_dump(HashTable* hash_tbl, err_t err, char* msg,
+                     const char* filename, int line, const char* funcname)
 {
-  hash_t hsum = 0;
-
-  for(size_t i = 0; i < len; ++i)
-    hsum += (hash_t)str[i];
-
-  return hsum;
+  for(size_t i = 0; i < hash_tbl->size; ++i) {
+    dllist_dump(&hash_tbl->tbl[i], err, msg, filename, line, funcname);
+  }
 }
+
+#endif
+
